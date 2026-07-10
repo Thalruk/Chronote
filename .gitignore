@@ -1,0 +1,9 @@
+# System
+.DS_Store
+Thumbs.db
+
+# Tools and Editors
+.vscode/
+.vs/
+*.suo
+*.user
