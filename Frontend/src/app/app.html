@@ -1,90 +1,35 @@
 <div class="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
 
-  <!-- Opcjonalny, bardzo wąski pasek nawigacyjny -->
   <aside class="w-16 flex flex-col items-center py-6 border-r border-gray-200 bg-gray-50 z-10">
     <div class="font-bold text-2xl text-indigo-600 mb-8" title="Chronote">C</div>
   </aside>
 
-  <!-- Główny widok aplikacji -->
   <main class="flex-1 flex flex-col h-full overflow-hidden bg-gray-50/50">
 
-    <!-- Pasek górny (Header) -->
     <header class="h-20 border-b border-gray-200 flex items-center justify-between px-8 bg-white shrink-0">
-      <h1 class="text-2xl font-bold text-gray-800">Twoja tablica</h1>
-      <button
-        class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm">
-        + Nowa notatka
-      </button>
+      <h1 class="text-2xl font-bold text-gray-800">Your Notes</h1>
+
+      <div class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors">
+        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold">
+          BL
+        </div>
+        <div class="text-sm text-right">
+          <p class="font-medium text-gray-700">Bartłomiej</p>
+          <p class="text-xs text-gray-500">Manage Account</p>
+        </div>
+      </div>
     </header>
 
-    <!-- Obszar roboczy Kanban (Poziome przewijanie) -->
-    <div class="flex-1 overflow-x-auto overflow-y-hidden p-8">
-      <div class="flex gap-6 h-full items-start">
+    <div class="flex-1 overflow-x-auto overflow-y-auto p-8">
 
-        <!-- Kolumna 1: Dzisiaj -->
-        <div class="w-80 flex-shrink-0 flex flex-col max-h-full bg-gray-100/80 rounded-xl border border-gray-200">
-          <div
-            class="px-4 py-3 font-semibold text-gray-800 flex justify-between items-center border-b border-gray-200/60 shrink-0">
-            <span>Dzisiaj</span>
-            <span class="bg-indigo-100 text-indigo-700 text-xs font-bold py-1 px-2.5 rounded-full">2</span>
-          </div>
-          <!-- Wnętrze kolumny (Pionowe przewijanie dla kart) -->
-          <div class="p-3 flex-1 overflow-y-auto space-y-3">
-
-            <!-- Przykładowa karta 1 -->
-            <div
-              class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 cursor-grab hover:border-indigo-400 hover:shadow-md transition-all border-l-4 border-l-red-500">
-              <h3 class="font-medium text-gray-900 text-sm">Zrobić migrację bazy</h3>
-              <p class="text-xs text-gray-500 mt-2 line-clamp-2">Dodać tabele w Supabase dla nowej encji Note na
-                backendzie.</p>
-            </div>
-
-            <!-- Przykładowa karta 2 -->
-            <div
-              class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 cursor-grab hover:border-indigo-400 hover:shadow-md transition-all">
-              <h3 class="font-medium text-gray-900 text-sm">Przejrzeć opcje hostingu</h3>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Kolumna 2: Jutro -->
-        <div class="w-80 flex-shrink-0 flex flex-col max-h-full bg-gray-100/80 rounded-xl border border-gray-200">
-          <div
-            class="px-4 py-3 font-semibold text-gray-800 flex justify-between items-center border-b border-gray-200/60 shrink-0">
-            <span>Jutro</span>
-          </div>
-          <div class="p-3 flex-1 overflow-y-auto space-y-3"></div>
-        </div>
-
-        <!-- Kolumna 3: Ten tydzień -->
-        <div class="w-80 flex-shrink-0 flex flex-col max-h-full bg-gray-100/80 rounded-xl border border-gray-200">
-          <div
-            class="px-4 py-3 font-semibold text-gray-800 flex justify-between items-center border-b border-gray-200/60 shrink-0">
-            <span>Ten tydzień</span>
-          </div>
-          <div class="p-3 flex-1 overflow-y-auto space-y-3"></div>
-        </div>
-
-        <!-- Kolumna 4: Następny tydzień -->
-        <div class="w-80 flex-shrink-0 flex flex-col max-h-full bg-gray-100/80 rounded-xl border border-gray-200">
-          <div
-            class="px-4 py-3 font-semibold text-gray-800 flex justify-between items-center border-b border-gray-200/60 shrink-0">
-            <span>Następny tydzień</span>
-          </div>
-          <div class="p-3 flex-1 overflow-y-auto space-y-3"></div>
-        </div>
-
-        <!-- Kolumna 5: Kiedy indziej -->
-        <div class="w-80 flex-shrink-0 flex flex-col max-h-full bg-gray-100/80 rounded-xl border border-gray-200">
-          <div
-            class="px-4 py-3 font-semibold text-gray-800 flex justify-between items-center border-b border-gray-200/60 shrink-0">
-            <span>Kiedy indziej</span>
-          </div>
-          <div class="p-3 flex-1 overflow-y-auto space-y-3"></div>
-        </div>
-
+      <div class="flex gap-6 items-start group/board" cdkDropListGroup>
+        <app-column title="Today" [notes]="notesToday()" (dropped)="drop($event)"></app-column>
+        <app-column title="Tomorrow" [notes]="notesTomorrow()" (dropped)="drop($event)"></app-column>
+        <app-column title="This week" [notes]="notesThisWeek()" (dropped)="drop($event)"></app-column>
+        <app-column title="Next week" [notes]="notesNextWeek()" (dropped)="drop($event)"></app-column>
+        <app-column title="Later" [notes]="notesLater()" (dropped)="drop($event)"></app-column>
       </div>
+
     </div>
   </main>
 </div>
