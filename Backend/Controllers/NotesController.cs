@@ -16,7 +16,6 @@ public class NotesController : ControllerBase
         _context = context;
     }
 
-    // Pobieranie wszystkich notatek (GET /api/notes)
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Note>>> GetNotes()
     {
@@ -25,7 +24,6 @@ public class NotesController : ControllerBase
             .ToListAsync();
     }
 
-    // Pobieranie konkretnej notatki (GET /api/notes/{id})
     [HttpGet("{id}")]
     public async Task<ActionResult<Note>> GetNote(Guid id)
     {
@@ -39,11 +37,9 @@ public class NotesController : ControllerBase
         return note;
     }
 
-    // Tworzenie nowej notatki (POST /api/notes)
     [HttpPost]
     public async Task<ActionResult<Note>> CreateNote(Note note)
     {
-        // Zabezpieczenie: nadpisujemy klucz i datę na backendzie
         note.Id = Guid.NewGuid();
         note.CreatedAt = DateTime.UtcNow;
 
@@ -53,7 +49,6 @@ public class NotesController : ControllerBase
         return CreatedAtAction(nameof(GetNote), new { id = note.Id }, note);
     }
 
-    // Aktualizacja notatki (PUT /api/notes/{id})
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateNote(Guid id, Note updatedNote)
     {
@@ -68,7 +63,6 @@ public class NotesController : ControllerBase
         return NoContent();
     }
 
-    // Usuwanie notatki (DELETE /api/notes/{id})
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteNote(Guid id)
     {

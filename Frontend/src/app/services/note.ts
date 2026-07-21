@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Note {
     id: string;
@@ -15,8 +16,7 @@ export interface Note {
 export class NoteService {
     private http = inject(HttpClient);
 
-    // ZMIEŃ PORT NA WŁAŚCIWY DLA TWOJEGO BACKENDU!
-    private apiUrl = 'https://localhost:7052/api/notes';
+    private apiUrl = `${environment.apiUrl}/notes`;
 
     getNotes(): Observable<Note[]> {
         return this.http.get<Note[]>(this.apiUrl);
