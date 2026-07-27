@@ -1,35 +1,56 @@
 <div class="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
-
   <aside class="w-16 flex flex-col items-center py-6 border-r border-gray-200 bg-gray-50 z-10">
     <div class="font-bold text-2xl text-indigo-600 mb-8" title="Chronote">C</div>
   </aside>
 
   <main class="flex-1 flex flex-col h-full overflow-hidden bg-gray-50/50">
-
-    <header class="h-20 border-b border-gray-200 flex items-center justify-between px-8 bg-white shrink-0">
+    <header
+      class="h-20 border-b border-gray-200 flex items-center justify-between px-8 bg-white shrink-0"
+    >
       <h1 class="text-2xl font-bold text-gray-800">Your Notes</h1>
 
-      <div class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors">
-        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold">
-          BL
-        </div>
-        <div class="text-sm text-right">
-          <p class="font-medium text-gray-700">Bartłomiej</p>
-          <p class="text-xs text-gray-500">Manage Account</p>
-        </div>
+      <div class="flex items-center gap-3">
+        @if (user(); as currentUser) {
+          <div
+            class="w-10 h-10 rounded-full overflow-hidden border border-gray-200 bg-gray-50 flex-shrink-0"
+          >
+            <img [src]="currentUser.photoUrl" alt="Avatar" class="w-full h-full object-cover" />
+          </div>
+          <div class="text-sm text-right flex flex-col justify-center">
+            <p class="font-medium text-gray-700 leading-tight">{{ currentUser.firstName }}</p>
+            <button
+              (click)="logOut()"
+              class="text-xs text-indigo-600 hover:text-indigo-800 text-right mt-0.5"
+            >
+              Log Out
+            </button>
+          </div>
+        } @else {
+          <asl-google-signin-button type="standard" size="medium"></asl-google-signin-button>
+        }
       </div>
     </header>
 
     <div class="flex-1 overflow-x-auto overflow-y-auto p-8">
-
       <div class="flex gap-6 items-start group/board" cdkDropListGroup>
         <app-column title="Today" [notes]="notesToday()" (dropped)="drop($event)"></app-column>
-        <app-column title="Tomorrow" [notes]="notesTomorrow()" (dropped)="drop($event)"></app-column>
-        <app-column title="This week" [notes]="notesThisWeek()" (dropped)="drop($event)"></app-column>
-        <app-column title="Next week" [notes]="notesNextWeek()" (dropped)="drop($event)"></app-column>
+        <app-column
+          title="Tomorrow"
+          [notes]="notesTomorrow()"
+          (dropped)="drop($event)"
+        ></app-column>
+        <app-column
+          title="This week"
+          [notes]="notesThisWeek()"
+          (dropped)="drop($event)"
+        ></app-column>
+        <app-column
+          title="Next week"
+          [notes]="notesNextWeek()"
+          (dropped)="drop($event)"
+        ></app-column>
         <app-column title="Later" [notes]="notesLater()" (dropped)="drop($event)"></app-column>
       </div>
-
     </div>
   </main>
 </div>
