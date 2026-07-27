@@ -1,5 +1,5 @@
 export const environment = {
-    production: false,
-    apiUrl: 'https://localhost:7052/api',
-    googleClientId: '392616601934-jeijk1v3g6qk36b3gtb09eecch54151a.apps.googleusercontent.com'
+  production: false,
+  apiUrl: 'http://localhost:5067/api',
+  googleClientId: '392616601934-7hn7j64fpkpkhtmjpvsonq52cmg6mo90.apps.googleusercontent.com',
 };

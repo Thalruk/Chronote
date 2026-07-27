@@ -1,21 +1,36 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+// ... Twoje dotychczasowe importy
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NoteService, Note } from './services/note';
-import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { Column } from "./column/column";
-import { GoogleSigninButtonModule, SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
+import {
+  CdkDragDrop,
+  DragDropModule,
+  moveItemInArray,
+  transferArrayItem,
+} from '@angular/cdk/drag-drop';
+import { Column } from './column/column';
+import {
+  GoogleSigninButtonModule,
+  SocialAuthService,
+  SocialUser,
+} from '@abacritt/angularx-social-login';
+import { Note, NoteService } from './services/note';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, DragDropModule, Column, GoogleSigninButtonModule],
-  templateUrl: './app.html'
+  templateUrl: './app.html',
 })
 export class App implements OnInit {
   private noteService = inject(NoteService);
   private authService = inject(SocialAuthService);
+  // Dodajemy klienta HTTP
+  private http = inject(HttpClient);
 
-  user: SocialUser | null = null;
+  user = signal<SocialUser | null>(null);
+
   notesToday = signal<Note[]>([]);
   notesTomorrow = signal<Note[]>([]);
   notesThisWeek = signal<Note[]>([]);
@@ -27,20 +42,30 @@ export class App implements OnInit {
       next: (data) => {
         this.notesToday.set(data);
       },
-      error: (err) => console.error('Communication error:', err)
+      error: (err) => console.error('Backend error:', err),
     });
-    this.authService.authState.subscribe((user) => {
-      this.user = user;
 
-      if (user) {
-        console.log('Zalogowano poprawnie pomyślnie!');
-        console.log('Oto ID Token, który zaraz wyślemy do naszego backendu C#:', user.idToken);
-      }
+    this.authService.authState.subscribe({
+      next: (user) => {
+        this.user.set(user);
+
+        if (user) {
+          this.http
+            .post<{ token: string }>(`${environment.apiUrl}/auth/google`, { idToken: user.idToken })
+            .subscribe({
+              next: (response) => {
+                localStorage.setItem('jwt_token', response.token);
+              },
+            });
+        }
+      },
     });
   }
 
   logOut() {
     this.authService.signOut();
+    localStorage.removeItem('jwt_token');
+    this.user.set(null);
   }
 
   drop(event: CdkDragDrop<Note[]>) {
@@ -53,7 +78,6 @@ export class App implements OnInit {
         event.previousIndex,
         event.currentIndex,
       );
-      // Future step: send a PUT request to the backend to update the status in the database
     }
   }
 }

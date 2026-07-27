@@ -3,7 +3,11 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
 
-import { GoogleLoginProvider, SocialAuthServiceConfig, SOCIAL_AUTH_CONFIG } from '@abacritt/angularx-social-login';
+import {
+  GoogleLoginProvider,
+  SocialAuthServiceConfig,
+  SOCIAL_AUTH_CONFIG,
+} from '@abacritt/angularx-social-login';
 import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
@@ -12,20 +16,21 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(),
     {
-      // Używamy dedykowanego tokena zamiast stringa:
       provide: SOCIAL_AUTH_CONFIG,
       useValue: {
         autoLogin: false,
         providers: [
           {
             id: GoogleLoginProvider.PROVIDER_ID,
-            provider: new GoogleLoginProvider(environment.googleClientId)
-          }
+            provider: new GoogleLoginProvider(environment.googleClientId, {
+              oneTapEnabled: false,
+            }),
+          },
         ],
         onError: (err) => {
-          console.error('Błąd logowania Google:', err);
-        }
+          console.error('Google login error:', err);
+        },
       } as SocialAuthServiceConfig,
-    }
-  ]
+    },
+  ],
 };
