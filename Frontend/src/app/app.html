@@ -1,8 +1,28 @@
 <div class="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
-  <aside class="w-16 flex flex-col items-center py-6 border-r border-gray-200 bg-gray-50 z-10">
-    <div class="font-bold text-2xl text-indigo-600 mb-8" title="Chronote">C</div>
-  </aside>
+  <aside class="w-16 flex flex-col items-center border-r border-gray-200 bg-gray-50 z-10">
+    <div class="h-20 flex items-center justify-center w-full shrink-0">
+      <div class="font-bold text-5xl text-indigo-600 leading-none" title="Chronote">C</div>
+    </div>
 
+    <div class="w-full flex justify-center mt-1">
+      <button
+        (click)="openModal()"
+        class="w-10 h-10 flex items-center justify-center bg-indigo-600 text-white rounded-xl shadow-sm hover:bg-indigo-700 hover:shadow-md transition-all active:scale-95"
+        title="Add task"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2.5"
+          stroke="currentColor"
+          class="w-5 h-5"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+      </button>
+    </div>
+  </aside>
   <main class="flex-1 flex flex-col h-full overflow-hidden bg-gray-50/50">
     <header
       class="h-20 border-b border-gray-200 flex items-center justify-between px-8 bg-white shrink-0"
@@ -37,25 +57,73 @@
     </header>
 
     <div class="flex-1 overflow-x-auto overflow-y-auto p-8">
-      <div class="flex gap-6 items-start group/board" cdkDropListGroup>
-        <app-column title="Today" [notes]="notesToday()" (dropped)="drop($event)"></app-column>
+      <div class="flex min-w-full gap-6 items-start group/board" cdkDropListGroup>
+        <app-column
+          title="Missed"
+          [notes]="notesMissed()"
+          (dropped)="drop($event, 'Missed')"
+          (delete)="deleteNote($event)"
+          (edit)="openModal($event)"
+          (create)="openModalForColumn($event)"
+        ></app-column>
+
+        <app-column
+          title="Today"
+          [notes]="notesToday()"
+          (dropped)="drop($event, 'Today')"
+          (delete)="deleteNote($event)"
+          (edit)="openModal($event)"
+          (create)="openModalForColumn($event)"
+        >
+        </app-column>
+
         <app-column
           title="Tomorrow"
           [notes]="notesTomorrow()"
-          (dropped)="drop($event)"
-        ></app-column>
+          (dropped)="drop($event, 'Tomorrow')"
+          (delete)="deleteNote($event)"
+          (edit)="openModal($event)"
+          (create)="openModalForColumn($event)"
+        >
+        </app-column>
+
         <app-column
           title="This week"
           [notes]="notesThisWeek()"
-          (dropped)="drop($event)"
-        ></app-column>
+          (dropped)="drop($event, 'This week')"
+          (delete)="deleteNote($event)"
+          (edit)="openModal($event)"
+          (create)="openModalForColumn($event)"
+        >
+        </app-column>
+
         <app-column
           title="Next week"
           [notes]="notesNextWeek()"
-          (dropped)="drop($event)"
-        ></app-column>
-        <app-column title="Later" [notes]="notesLater()" (dropped)="drop($event)"></app-column>
+          (dropped)="drop($event, 'Next week')"
+          (delete)="deleteNote($event)"
+          (edit)="openModal($event)"
+          (create)="openModalForColumn($event)"
+        >
+        </app-column>
+
+        <app-column
+          title="Later"
+          [notes]="notesLater()"
+          (dropped)="drop($event, 'Later')"
+          (delete)="deleteNote($event)"
+          (edit)="openModal($event)"
+          (create)="openModalForColumn($event)"
+        >
+        </app-column>
       </div>
     </div>
   </main>
 </div>
+<app-note-modal
+  [isOpen]="isModalOpen()"
+  [noteData]="editingNote()"
+  (save)="saveNote($event)"
+  (close)="closeModal()"
+>
+</app-note-modal>
