@@ -8,13 +8,19 @@ import { Note } from '../services/note';
   standalone: true,
   imports: [CommonModule, DragDropModule],
   templateUrl: './column.html',
-  styleUrl: './column.css'
+  styleUrl: './column.css',
 })
 export class Column {
   title = input.required<string>();
   notes = input.required<Note[]>();
 
   @Output() dropped = new EventEmitter<CdkDragDrop<Note[]>>();
+
+  @Output() delete = new EventEmitter<string>();
+
+  @Output() edit = new EventEmitter<Note>();
+
+  @Output() create = new EventEmitter<string>();
 
   onDrop(event: CdkDragDrop<Note[]>) {
     this.dropped.emit(event);
