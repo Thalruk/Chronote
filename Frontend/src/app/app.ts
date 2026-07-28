@@ -38,6 +38,23 @@ export class App implements OnInit {
   notesLater = signal<Note[]>([]);
 
   ngOnInit() {
+    const savedToken = localStorage.getItem('jwt_token');
+
+    if (savedToken) {
+      this.http
+        .get<any>(`${environment.apiUrl}/auth/me`, {
+          headers: { Authorization: `Bearer ${savedToken}` },
+        })
+        .subscribe({
+          next: (userData) => {
+            this.user.set(userData);
+          },
+          error: (err) => {
+            console.warn('Sesja wygasła, konieczne ponowne zalogowanie.', err);
+            this.logOut();
+          },
+        });
+    }
     this.noteService.getNotes().subscribe({
       next: (data) => {
         this.notesToday.set(data);
@@ -47,11 +64,13 @@ export class App implements OnInit {
 
     this.authService.authState.subscribe({
       next: (user) => {
-        this.user.set(user);
-
         if (user) {
+          this.user.set(user);
+
           this.http
-            .post<{ token: string }>(`${environment.apiUrl}/auth/google`, { idToken: user.idToken })
+            .post<{ token: string }>(`${environment.apiUrl}/auth/google`, {
+              idToken: user.idToken,
+            })
             .subscribe({
               next: (response) => {
                 localStorage.setItem('jwt_token', response.token);

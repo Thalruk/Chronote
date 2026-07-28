@@ -14,7 +14,12 @@
           <div
             class="w-10 h-10 rounded-full overflow-hidden border border-gray-200 bg-gray-50 flex-shrink-0"
           >
-            <img [src]="currentUser.photoUrl" alt="Avatar" class="w-full h-full object-cover" />
+            <img
+              [src]="currentUser.photoUrl"
+              referrerpolicy="no-referrer"
+              alt="Avatar"
+              class="w-full h-full object-cover"
+            />
           </div>
           <div class="text-sm text-right flex flex-col justify-center">
             <p class="font-medium text-gray-700 leading-tight">{{ currentUser.firstName }}</p>
