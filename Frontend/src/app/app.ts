@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { NoteModal } from './note-modal/note-modal';
 import {
@@ -16,7 +17,8 @@ import {
   SocialUser,
 } from '@abacritt/angularx-social-login';
 import { Note, NoteService } from './services/note';
-
+import { ColumnType } from './models/column-type';
+import { NoteSortingService } from './services/note-sorting';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -27,6 +29,8 @@ export class App implements OnInit {
   private noteService = inject(NoteService);
   private authService = inject(SocialAuthService);
   private http = inject(HttpClient);
+  private destroyRef = inject(DestroyRef);
+  private noteSortingService = inject(NoteSortingService);
 
   user = signal<SocialUser | null>(null);
 
@@ -39,6 +43,9 @@ export class App implements OnInit {
 
   isModalOpen = signal(false);
   editingNote = signal<Partial<Note> | null>(null);
+  ColumnType = ColumnType;
+
+  isServerWakingUp = signal(false);
 
   ngOnInit() {
     const savedToken = localStorage.getItem('jwt_token');
@@ -59,8 +66,9 @@ export class App implements OnInit {
           },
         });
     }
-
-    this.authService.authState.subscribe({
+    this.authService.authState.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (user) => {
         if (user) {
           this.user.set(user);
@@ -78,6 +86,7 @@ export class App implements OnInit {
         }
       },
     });
+
   }
 
   logOut() {
@@ -93,71 +102,34 @@ export class App implements OnInit {
     this.notesLater.set([]);
   }
 
+
   loadNotes() {
+    const slowRequestTimer = setTimeout(() => this.isServerWakingUp.set(true), 1500);
+
     this.noteService.getNotes().subscribe({
-      next: (data) => this.distributeAndSortNotes(data),
-      error: (err) => console.error('Error fetching notes from database:', err),
+      next: (data) => {
+        clearTimeout(slowRequestTimer);
+        this.isServerWakingUp.set(false);
+
+        const sorted = this.noteSortingService.distribute(data);
+
+        this.notesMissed.set(sorted.missed);
+        this.notesToday.set(sorted.today);
+        this.notesTomorrow.set(sorted.tomorrow);
+        this.notesThisWeek.set(sorted.thisWeek);
+        this.notesNextWeek.set(sorted.nextWeek);
+        this.notesLater.set(sorted.later);
+      },
+      error: (err) => {
+        clearTimeout(slowRequestTimer);
+        this.isServerWakingUp.set(false);
+        console.error('Error fetching notes:', err);
+      },
     });
   }
 
-  private distributeAndSortNotes(data: Note[]) {
-    const missed: Note[] = [];
-    const today: Note[] = [];
-    const tomorrow: Note[] = [];
-    const thisWeek: Note[] = [];
-    const nextWeek: Note[] = [];
-    const later: Note[] = [];
 
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-
-    const tomorrowDate = new Date(now);
-    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-
-    const endOfThisWeek = new Date(now);
-    const daysToSunday = now.getDay() === 0 ? 0 : 7 - now.getDay();
-    endOfThisWeek.setDate(now.getDate() + daysToSunday);
-    endOfThisWeek.setHours(23, 59, 59, 999);
-
-    const endOfNextWeek = new Date(endOfThisWeek);
-    endOfNextWeek.setDate(endOfNextWeek.getDate() + 7);
-    endOfNextWeek.setHours(23, 59, 59, 999);
-
-    data.forEach((note) => {
-      if (!note.targetDate) {
-        later.push(note);
-        return;
-      }
-      const target = new Date(note.targetDate);
-      target.setHours(0, 0, 0, 0);
-
-      if (target < now) missed.push(note);
-      else if (target.getTime() === now.getTime()) today.push(note);
-      else if (target.getTime() === tomorrowDate.getTime()) tomorrow.push(note);
-      else if (target > tomorrowDate && target <= endOfThisWeek) thisWeek.push(note);
-      else if (target > endOfThisWeek && target <= endOfNextWeek) nextWeek.push(note);
-      else later.push(note);
-    });
-
-    const sortAsc = (a: Note, b: Note) => {
-      const timeA = a.targetDate
-        ? new Date(a.targetDate).getTime()
-        : new Date(a.createdAt || 0).getTime();
-      const timeB = b.targetDate
-        ? new Date(b.targetDate).getTime()
-        : new Date(b.createdAt || 0).getTime();
-      return timeA - timeB;
-    };
-
-    this.notesMissed.set(missed.sort(sortAsc));
-    this.notesToday.set(today.sort(sortAsc));
-    this.notesTomorrow.set(tomorrow.sort(sortAsc));
-    this.notesThisWeek.set(thisWeek.sort(sortAsc));
-    this.notesNextWeek.set(nextWeek.sort(sortAsc));
-    this.notesLater.set(later.sort(sortAsc));
-  }
-
-  drop(event: CdkDragDrop<Note[]>, targetColumnName: string) {
+  drop(event: CdkDragDrop<Note[]>, targetColumnName: ColumnType) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
@@ -170,7 +142,7 @@ export class App implements OnInit {
 
       const movedNote = event.container.data[event.currentIndex];
 
-      movedNote.targetDate = this.calculateTargetDate(targetColumnName);
+      movedNote.targetDate = this.noteSortingService.calculateTargetDate(targetColumnName);
 
       this.noteService.updateNote(movedNote).subscribe({
         next: () => {
@@ -188,40 +160,13 @@ export class App implements OnInit {
     }
   }
 
-  private calculateTargetDate(column: string): string | null {
-    const date = new Date();
-    date.setHours(12, 0, 0, 0);
-
-    switch (column) {
-      case 'Missed':
-        date.setDate(date.getDate() - 1);
-        return date.toISOString();
-      case 'Today':
-        return date.toISOString();
-      case 'Tomorrow':
-        date.setDate(date.getDate() + 1);
-        return date.toISOString();
-      case 'This week':
-        const daysToSunday = date.getDay() === 0 ? 0 : 7 - date.getDay();
-        date.setDate(date.getDate() + daysToSunday);
-        return date.toISOString();
-      case 'Next week':
-        const daysToNextSunday = (date.getDay() === 0 ? 0 : 7 - date.getDay()) + 7;
-        date.setDate(date.getDate() + daysToNextSunday);
-        return date.toISOString();
-      case 'Later':
-      default:
-        return null;
-    }
-  }
-
   openModal(note?: Partial<Note>) {
     this.editingNote.set(note || null);
     this.isModalOpen.set(true);
   }
 
-  openModalForColumn(columnName: string) {
-    const prefilledDate = this.calculateTargetDate(columnName);
+  openModalForColumn(columnName: ColumnType) {
+    const prefilledDate = this.noteSortingService.calculateTargetDate(columnName);
     const newNote: Partial<Note> = {
       targetDate: prefilledDate || undefined,
     };
