@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Backend.DTOs;
 
 namespace Chronote.Api.Controllers;
 
@@ -24,62 +25,68 @@ public class NotesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Note>>> GetNotes()
+    public async Task<ActionResult<IEnumerable<NoteResponseDto>>> GetNotes(
+     [FromQuery] int page = 1,
+     [FromQuery] int pageSize = 100)
     {
         var userId = GetUserId();
 
-        return await _context.Notes
-            .Where(n => n.UserId == userId) 
+        var notes = await _context.Notes
+            .Where(n => n.UserId == userId)
             .OrderByDescending(n => n.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(n => new NoteResponseDto(n.Id, n.Title, n.Content, n.CreatedAt, n.TargetDate))
             .ToListAsync();
+
+        return Ok(notes);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Note>> GetNote(Guid id)
+    public async Task<ActionResult<NoteResponseDto>> GetNote(Guid id)
     {
         var userId = GetUserId();
         var note = await _context.Notes.FindAsync(id);
 
-        if (note == null || note.UserId != userId)
-        {
-            return NotFound();
-        }
+        if (note == null || note.UserId != userId) return NotFound();
 
-        return note;
+        return Ok(new NoteResponseDto(note.Id, note.Title, note.Content, note.CreatedAt, note.TargetDate));
     }
 
     [HttpPost]
-    public async Task<ActionResult<Note>> CreateNote(Note note)
+    public async Task<ActionResult<NoteResponseDto>> CreateNote(CreateNoteDto dto)
     {
-        note.Id = Guid.NewGuid();
-        note.CreatedAt = DateTime.UtcNow;
-        note.UserId = GetUserId(); 
+        var note = new Note
+        {
+            Id = Guid.NewGuid(),
+            Title = dto.Title,
+            Content = dto.Content,
+            CreatedAt = DateTime.UtcNow,
+            UserId = GetUserId(),
+            TargetDate = dto.TargetDate
+        };
 
         _context.Notes.Add(note);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetNote), new { id = note.Id }, note);
+        var response = new NoteResponseDto(note.Id, note.Title, note.Content, note.CreatedAt, note.TargetDate);
+        return CreatedAtAction(nameof(GetNote), new { id = note.Id }, response);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateNote(Guid id, Note updatedNote)
+    public async Task<IActionResult> UpdateNote(Guid id, UpdateNoteDto dto)
     {
-        if (id != updatedNote.Id)
-        {
-            return BadRequest();
-        }
+        if (id != dto.Id) return BadRequest();
 
         var userId = GetUserId();
+        var existingNote = await _context.Notes.FirstOrDefaultAsync(n => n.Id == id);
 
-        var existingNote = await _context.Notes.AsNoTracking().FirstOrDefaultAsync(n => n.Id == id);
-        if (existingNote == null || existingNote.UserId != userId)
-        {
-            return NotFound();
-        }
+        if (existingNote == null || existingNote.UserId != userId) return NotFound();
 
-        updatedNote.UserId = userId;
-        
-        _context.Entry(updatedNote).State = EntityState.Modified;
+        existingNote.Title = dto.Title;
+        existingNote.Content = dto.Content;
+        existingNote.TargetDate = dto.TargetDate;
+
         await _context.SaveChangesAsync();
 
         return NoContent();
@@ -91,13 +98,17 @@ public class NotesController : ControllerBase
         var userId = GetUserId();
         var note = await _context.Notes.FindAsync(id);
 
-        if (note == null || note.UserId != userId)
-        {
-            return NotFound();
-        }
+        if (note == null || note.UserId != userId) return NotFound();
 
         _context.Notes.Remove(note);
-        await _context.SaveChangesAsync();
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+        }
 
         return NoContent();
     }
