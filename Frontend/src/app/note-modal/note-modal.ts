@@ -1,8 +1,7 @@
-import { Component, EventEmitter, Output, input, effect } from '@angular/core';
+import { Component, EventEmitter, Output, input, effect, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Note } from '../services/note';
-
 @Component({
   selector: 'app-note-modal',
   standalone: true,
@@ -20,6 +19,7 @@ export class NoteModal {
   content = '';
   targetDate = '';
 
+  @ViewChild('titleInput') titleInput!: ElementRef<HTMLInputElement>;
   constructor() {
     effect(() => {
       if (this.isOpen()) {
@@ -32,6 +32,9 @@ export class NoteModal {
         } else {
           this.targetDate = '';
         }
+        setTimeout(() => {
+          this.titleInput?.nativeElement.focus();
+        }, 50);
       }
     });
   }
