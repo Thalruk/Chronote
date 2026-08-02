@@ -1,33 +1,61 @@
-<div class="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
-  <aside class="w-16 flex flex-col items-center border-r border-gray-200 bg-gray-50 z-10">
-    <div class="h-20 flex items-center justify-center w-full shrink-0">
-      <div class="font-bold text-5xl text-indigo-600 leading-none" title="Chronote">C</div>
+<div class="flex h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans overflow-hidden">
+
+  <aside
+    class="w-16 flex flex-col items-center justify-between border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 z-10 py-4">
+    <div class="flex flex-col items-center gap-4 w-full">
+      <div class="h-12 flex items-center justify-center w-full shrink-0">
+        <div class="font-bold text-4xl text-indigo-600 dark:text-indigo-400 leading-none" title="Chronote">C</div>
+      </div>
+
+      <div class="w-full flex justify-center">
+        <button (click)="openModal()"
+          class="w-10 h-10 flex items-center justify-center bg-indigo-600 text-white rounded-xl shadow-sm hover:bg-indigo-700 hover:shadow-md transition-all active:scale-95"
+          title="Add task">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+            stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </button>
+      </div>
     </div>
 
-    <div class="w-full flex justify-center mt-1">
-      <button (click)="openModal()"
-        class="w-10 h-10 flex items-center justify-center bg-indigo-600 text-white rounded-xl shadow-sm hover:bg-indigo-700 hover:shadow-md transition-all active:scale-95"
-        title="Add task">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"
+    <div class="w-full flex justify-center">
+      <button (click)="toggleDarkMode()"
+        class="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-xl hover:bg-gray-200/60 dark:hover:bg-gray-800 transition-all"
+        [title]="isDarkMode() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+        @if (isDarkMode()) {
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
           class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
         </svg>
+        } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+          class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+        </svg>
+        }
       </button>
     </div>
   </aside>
-  <main class="flex-1 flex flex-col h-full overflow-hidden bg-gray-50/50">
-    <header class="h-20 border-b border-gray-200 flex items-center justify-between px-8 bg-white shrink-0">
-      <h1 class="text-2xl font-bold text-gray-800">Your Notes</h1>
+
+  <main class="flex-1 flex flex-col h-full overflow-hidden bg-gray-50/50 dark:bg-gray-900/50">
+    <header
+      class="h-20 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-8 bg-white dark:bg-gray-900 shrink-0">
+      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Your Notes</h1>
 
       <div class="flex items-center gap-3">
         @if (user(); as currentUser) {
-        <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-200 bg-gray-50 flex-shrink-0">
+        <div
+          class="w-10 h-10 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex-shrink-0">
           <img [src]="currentUser.photoUrl" referrerpolicy="no-referrer" alt="Avatar"
             class="w-full h-full object-cover" />
         </div>
         <div class="text-sm text-right flex flex-col justify-center">
-          <p class="font-medium text-gray-700 leading-tight">{{ currentUser.firstName }}</p>
-          <button (click)="logOut()" class="text-xs text-indigo-600 hover:text-indigo-800 text-right mt-0.5">
+          <p class="font-medium text-gray-700 dark:text-gray-200 leading-tight">{{ currentUser.firstName }}</p>
+          <button (click)="logOut()"
+            class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-right mt-0.5">
             Log Out
           </button>
         </div>
@@ -38,7 +66,7 @@
     </header>
     @if (isServerWakingUp()) {
     <div
-      class="bg-indigo-50 dark:bg-indigo-900/30 border-b border-indigo-100 dark:border-indigo-800 px-4 py-2 flex items-center justify-center gap-3 text-indigo-700 dark:text-indigo-300 text-sm font-medium animate-pulse shrink-0 transition-all">
+      class="bg-indigo-50 dark:bg-indigo-900/30 border-b border-indigo-100 dark:border-indigo-800 px-4 py-2 flex items-center justify-center gap-3 text-black dark:text-white text-sm font-medium animate-pulse shrink-0 transition-all">
       <svg class="animate-spin h-4 w-4 text-indigo-600 dark:text-indigo-400" xmlns="http://www.w3.org/2000/svg"
         fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

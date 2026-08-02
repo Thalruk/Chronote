@@ -1,49 +1,48 @@
-<!-- Główny kontener jest pełnowymiarowy (h-full). Klasa [&>.cdk-drag-placeholder]:hidden ukrywa główny placeholder CDK, jeśli ucieknie poza szare tło -->
 <div class="h-full flex flex-col group/list [&>.cdk-drag-placeholder]:hidden" cdkDropList [cdkDropListData]="notes()"
   (cdkDropListDropped)="onDrop($event)">
 
-  <!-- Wizualne szare tło (h-fit, dzięki czemu elegancko otula notatki, a max-h dodaje scroll) -->
   <div
-    class="flex flex-col h-fit max-h-[calc(100vh-9rem)] bg-gray-100/80 rounded-xl border border-gray-200 shadow-sm shrink-0">
+    class="flex flex-col h-fit max-h-[calc(100vh-9rem)] bg-gray-100/80 dark:bg-gray-900/80 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm shrink-0">
 
-    <!-- Nagłówek -->
     <div
-      class="px-4 py-3 font-semibold text-gray-800 flex justify-between items-center border-b border-gray-200/60 shrink-0">
+      class="px-4 py-3 font-semibold text-gray-800 dark:text-gray-200 flex justify-between items-center border-b border-gray-200/60 dark:border-gray-800/60 shrink-0">
       <span>{{ title() }}</span>
-      <span class="bg-indigo-100 text-indigo-700 text-xs font-bold py-1 px-2.5 rounded-full">{{ notes().length }}</span>
+      <span
+        class="bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-xs font-bold py-1 px-2.5 rounded-full">
+        {{ notes().length }}
+      </span>
     </div>
 
-    <!-- Kontener na notatki -->
     <div class="p-3 space-y-3 flex-1 overflow-y-auto min-h-[50px]">
-
       @for (note of notes(); track note.id) {
       <div cdkDrag (cdkDragStarted)="onDragStarted()" (cdkDragEnded)="onDragEnded()" (click)="onNoteClick(note)"
-        class="relative bg-white p-4 rounded-lg shadow-sm border border-gray-200 cursor-pointer active:cursor-grabbing hover:border-indigo-400 hover:shadow-md transition-colors border-l-4 border-l-indigo-500">
-        <div *cdkDragPlaceholder class="bg-indigo-50/50 border-2 border-dashed border-indigo-300 rounded-lg h-24"></div>
+        class="relative bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer active:cursor-grabbing hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-md transition-colors border-l-4 border-l-indigo-500">
+
+        <div *cdkDragPlaceholder
+          class="bg-indigo-50/50 dark:bg-indigo-950/50 border-2 border-dashed border-indigo-300 dark:border-indigo-700 rounded-lg h-24">
+        </div>
 
         <button (click)="$event.stopPropagation(); delete.emit(note.id)"
-          class="absolute top-2 right-2 p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-all">
+          class="absolute top-2 right-2 p-1 text-slate-400 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 rounded transition-all">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
             class="w-4 h-4">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
-        <h3 class="font-medium text-gray-900 text-sm w-[90%]">{{ note.title }}</h3>
-        <p class="text-xs text-gray-500 mt-2 line-clamp-2">{{ note.content }}</p>
+        <h3 class="font-medium text-gray-900 dark:text-gray-100 text-sm w-[90%]">{{ note.title }}</h3>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 line-clamp-2">{{ note.content }}</p>
       </div>
       }
 
       <div
-        class="hidden group-has-[>.cdk-drag-placeholder]/list:block bg-indigo-50/50 border-2 border-dashed border-indigo-300 rounded-lg h-24">
+        class="hidden group-has-[>.cdk-drag-placeholder]/list:block bg-indigo-50/50 dark:bg-indigo-950/50 border-2 border-dashed border-indigo-300 dark:border-indigo-700 rounded-lg h-24">
       </div>
-
     </div>
 
-    <!-- Przycisk -->
     <div class="p-3 pt-0 shrink-0">
       <button (click)="create.emit(title())"
-        class="w-full transition-all duration-200 flex items-center gap-2 py-2 px-3 text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-200/60 rounded-lg">
+        class="w-full transition-all duration-200 flex items-center gap-2 py-2 px-3 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-200/60 dark:hover:bg-gray-800 rounded-lg">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd"
             d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
