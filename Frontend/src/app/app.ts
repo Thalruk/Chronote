@@ -47,6 +47,8 @@ export class App implements OnInit {
 
   isServerWakingUp = signal(false);
 
+  isDarkMode = signal(false);
+
   ngOnInit() {
     const savedToken = localStorage.getItem('jwt_token');
 
@@ -86,7 +88,11 @@ export class App implements OnInit {
         }
       },
     });
-
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      this.isDarkMode.set(true);
+      document.documentElement.classList.add('dark');
+    }
   }
 
   logOut() {
@@ -207,5 +213,15 @@ export class App implements OnInit {
       },
       error: (err) => console.error('Error deleting note:', err),
     });
+  }
+  toggleDarkMode() {
+    this.isDarkMode.update(dark => !dark);
+    if (this.isDarkMode()) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
   }
 }
