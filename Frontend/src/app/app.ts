@@ -4,6 +4,8 @@ import { Component, inject, OnInit, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { NoteModal } from './note-modal/note-modal';
+import { SettingsModal } from './settings-modal/settings-modal';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   CdkDragDrop,
   DragDropModule,
@@ -19,10 +21,11 @@ import {
 import { Note, NoteService } from './services/note';
 import { ColumnType } from './models/column-type';
 import { NoteSortingService } from './services/note-sorting';
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, DragDropModule, Column, GoogleSigninButtonModule, NoteModal],
+  imports: [CommonModule, DragDropModule, Column, GoogleSigninButtonModule, NoteModal, SettingsModal, TranslatePipe],
   templateUrl: './app.html',
 })
 export class App implements OnInit {
@@ -48,7 +51,7 @@ export class App implements OnInit {
   isServerWakingUp = signal(false);
 
   isDarkMode = signal(false);
-
+  isSettingsOpen = signal(false);
   ngOnInit() {
     const savedToken = localStorage.getItem('jwt_token');
 

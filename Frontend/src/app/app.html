@@ -10,7 +10,7 @@
       <div class="w-full flex justify-center">
         <button (click)="openModal()"
           class="w-10 h-10 flex items-center justify-center bg-indigo-600 text-white rounded-xl shadow-sm hover:bg-indigo-700 hover:shadow-md transition-all active:scale-95"
-          title="Add task">
+          [title]="'BOARD.ADD_TASK' | translate">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
             stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -20,22 +20,14 @@
     </div>
 
     <div class="w-full flex justify-center">
-      <button (click)="toggleDarkMode()"
-        class="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-xl hover:bg-gray-200/60 dark:hover:bg-gray-800 transition-all"
-        [title]="isDarkMode() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
-        @if (isDarkMode()) {
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-          class="w-5 h-5">
+      <button (click)="isSettingsOpen.set(true)"
+        class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors" title="Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round"
-            d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+            d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.99l1.004.828c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
         </svg>
-        } @else {
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-          class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-        </svg>
-        }
       </button>
     </div>
   </aside>
@@ -43,7 +35,8 @@
   <main class="flex-1 flex flex-col h-full overflow-hidden bg-gray-50/50 dark:bg-gray-900/50">
     <header
       class="h-20 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-8 bg-white dark:bg-gray-900 shrink-0">
-      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Your Notes</h1>
+
+      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ 'BOARD.TITLE' | translate }}</h1>
 
       <div class="flex items-center gap-3">
         @if (user(); as currentUser) {
@@ -56,7 +49,7 @@
           <p class="font-medium text-gray-700 dark:text-gray-200 leading-tight">{{ currentUser.firstName }}</p>
           <button (click)="logOut()"
             class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-right mt-0.5">
-            Log Out
+            {{ 'COMMON.LOGOUT' | translate }}
           </button>
         </div>
         } @else {
@@ -74,7 +67,7 @@
           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
         </path>
       </svg>
-      Connecting to the server. Waking up the backend may take about a minute...
+      {{ 'COMMON.WAKING_UP' | translate }}
     </div>
     }
 
@@ -83,28 +76,33 @@
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 min-w-full gap-4 h-fit xl:h-full group/board"
         cdkDropListGroup>
 
-        <app-column title="Missed" [notes]="notesMissed()" (dropped)="drop($event, ColumnType.Missed)"
-          (delete)="deleteNote($event)" (edit)="openModal($event)"
+        <app-column [title]="'BOARD.MISSED' | translate" [notes]="notesMissed()"
+          (dropped)="drop($event, ColumnType.Missed)" (delete)="deleteNote($event)" (edit)="openModal($event)"
           (create)="openModalForColumn(ColumnType.Missed)"></app-column>
 
-        <app-column title="Today" [notes]="notesToday()" (dropped)="drop($event, ColumnType.Today)"
-          (delete)="deleteNote($event)" (edit)="openModal($event)" (create)="openModalForColumn(ColumnType.Today)">
+        <app-column [title]="'BOARD.TODAY' | translate" [notes]="notesToday()"
+          (dropped)="drop($event, ColumnType.Today)" (delete)="deleteNote($event)" (edit)="openModal($event)"
+          (create)="openModalForColumn(ColumnType.Today)">
         </app-column>
 
-        <app-column title="Tomorrow" [notes]="notesTomorrow()" (dropped)="drop($event, ColumnType.Tomorrow)"
-          (delete)="deleteNote($event)" (edit)="openModal($event)" (create)="openModalForColumn(ColumnType.Tomorrow)">
+        <app-column [title]="'BOARD.TOMORROW' | translate" [notes]="notesTomorrow()"
+          (dropped)="drop($event, ColumnType.Tomorrow)" (delete)="deleteNote($event)" (edit)="openModal($event)"
+          (create)="openModalForColumn(ColumnType.Tomorrow)">
         </app-column>
 
-        <app-column title="This week" [notes]="notesThisWeek()" (dropped)="drop($event, ColumnType.ThisWeek)"
-          (delete)="deleteNote($event)" (edit)="openModal($event)" (create)="openModalForColumn(ColumnType.ThisWeek)">
+        <app-column [title]="'BOARD.THIS_WEEK' | translate" [notes]="notesThisWeek()"
+          (dropped)="drop($event, ColumnType.ThisWeek)" (delete)="deleteNote($event)" (edit)="openModal($event)"
+          (create)="openModalForColumn(ColumnType.ThisWeek)">
         </app-column>
 
-        <app-column title="Next week" [notes]="notesNextWeek()" (dropped)="drop($event, ColumnType.NextWeek)"
-          (delete)="deleteNote($event)" (edit)="openModal($event)" (create)="openModalForColumn(ColumnType.NextWeek)">
+        <app-column [title]="'BOARD.NEXT_WEEK' | translate" [notes]="notesNextWeek()"
+          (dropped)="drop($event, ColumnType.NextWeek)" (delete)="deleteNote($event)" (edit)="openModal($event)"
+          (create)="openModalForColumn(ColumnType.NextWeek)">
         </app-column>
 
-        <app-column title="Later" [notes]="notesLater()" (dropped)="drop($event, ColumnType.Later)"
-          (delete)="deleteNote($event)" (edit)="openModal($event)" (create)="openModalForColumn(ColumnType.Later)">
+        <app-column [title]="'BOARD.LATER' | translate" [notes]="notesLater()"
+          (dropped)="drop($event, ColumnType.Later)" (delete)="deleteNote($event)" (edit)="openModal($event)"
+          (create)="openModalForColumn(ColumnType.Later)">
         </app-column>
       </div>
     </div>
@@ -112,3 +110,6 @@
 </div>
 <app-note-modal [isOpen]="isModalOpen()" [noteData]="editingNote()" (save)="saveNote($event)" (close)="closeModal()">
 </app-note-modal>
+<app-settings-modal [isOpen]="isSettingsOpen()" [isDarkMode]="isDarkMode()" (close)="isSettingsOpen.set(false)"
+  (toggleTheme)="toggleDarkMode()">
+</app-settings-modal>
