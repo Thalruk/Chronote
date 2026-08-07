@@ -1,0 +1,22 @@
+{
+    "BOARD": {
+        "TITLE": "Twoje Notatki",
+        "MISSED": "Zaległe",
+        "TODAY": "Dzisiaj",
+        "TOMORROW": "Jutro",
+        "THIS_WEEK": "W tym tygodniu",
+        "NEXT_WEEK": "W przyszłym tygodniu",
+        "LATER": "Później",
+        "ADD_TASK": "Dodaj zadanie"
+    },
+    "COMMON": {
+        "LOGOUT": "Wyloguj",
+        "WAKING_UP": "Łączenie z serwerem. Wybudzanie backendu może zająć około minuty...",
+        "SETTINGS": "Ustawienia",
+        "DARK_MODE": "Motyw ciemny",
+        "LANGUAGE": "Język",
+        "ON": "Wł.",
+        "OFF": "Wył.",
+        "CLOSE": "Zamknij"
+    }
+}

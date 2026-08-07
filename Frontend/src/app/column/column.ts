@@ -2,11 +2,11 @@ import { Component, input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Note } from '../services/note';
-
+import { TranslatePipe } from '@ngx-translate/core';
 @Component({
   selector: 'app-column',
   standalone: true,
-  imports: [CommonModule, DragDropModule],
+  imports: [CommonModule, DragDropModule, TranslatePipe],
   templateUrl: './column.html',
   styleUrl: './column.css',
 })

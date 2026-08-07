@@ -1,0 +1,22 @@
+{
+    "BOARD": {
+        "TITLE": "Your Notes",
+        "MISSED": "Missed",
+        "TODAY": "Today",
+        "TOMORROW": "Tomorrow",
+        "THIS_WEEK": "This week",
+        "NEXT_WEEK": "Next week",
+        "LATER": "Later",
+        "ADD_TASK": "Add task"
+    },
+    "COMMON": {
+        "LOGOUT": "Log Out",
+        "WAKING_UP": "Connecting to the server. Waking up the backend may take about a minute...",
+        "SETTINGS": "Settings",
+        "DARK_MODE": "Dark Mode",
+        "LANGUAGE": "Language",
+        "ON": "On",
+        "OFF": "Off",
+        "CLOSE": "Close"
+    }
+}

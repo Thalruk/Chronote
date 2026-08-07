@@ -1,0 +1,45 @@
+@if (isOpen()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity">
+    <div class="relative w-full max-w-sm p-6 bg-white dark:bg-gray-900 rounded-xl shadow-2xl transition-colors">
+        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-6">
+            {{ 'COMMON.SETTINGS' | translate }}
+        </h3>
+
+        <div class="space-y-6">
+            <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ 'COMMON.DARK_MODE' | translate
+                    }}</span>
+                <button (click)="toggleTheme.emit()"
+                    class="px-3 py-1.5 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    {{ isDarkMode() ? ('COMMON.ON' | translate) : ('COMMON.OFF' | translate) }}
+                </button>
+            </div>
+
+            <!-- Wybór języka -->
+            <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ 'COMMON.LANGUAGE' | translate
+                    }}</span>
+                <div class="flex gap-2">
+                    <button (click)="switchLang('pl')"
+                        [ngClass]="currentLang() === 'pl' ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 border-indigo-300 dark:border-indigo-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-transparent hover:bg-gray-200 dark:hover:bg-gray-700'"
+                        class="px-3 py-1 text-xs font-medium rounded-lg border transition-colors">
+                        PL
+                    </button>
+                    <button (click)="switchLang('en')"
+                        [ngClass]="currentLang() === 'en' ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 border-indigo-300 dark:border-indigo-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-transparent hover:bg-gray-200 dark:hover:bg-gray-700'"
+                        class="px-3 py-1 text-xs font-medium rounded-lg border transition-colors">
+                        EN
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end mt-8 pt-4 border-t border-gray-100 dark:border-gray-800">
+            <button (click)="close.emit()"
+                class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                {{ 'COMMON.CLOSE' | translate }}
+            </button>
+        </div>
+    </div>
+</div>
+}
