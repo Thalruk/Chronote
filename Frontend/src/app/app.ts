@@ -128,8 +128,16 @@ export class App implements OnInit {
       },
       error: (err) => {
         clearTimeout(slowRequestTimer);
-        this.isServerWakingUp.set(false);
         console.error('Error fetching notes:', err);
+
+        if (err.status === 0 || err.status === 502 || err.status === 503) {
+          this.isServerWakingUp.set(true);
+          setTimeout(() => {
+            this.loadNotes();
+          }, 5000);
+        } else {
+          this.isServerWakingUp.set(false);
+        }
       },
     });
   }

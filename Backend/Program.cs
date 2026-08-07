@@ -20,7 +20,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
-
+foreach (var source in builder.Configuration.Sources.OfType<Microsoft.Extensions.Configuration.Json.JsonConfigurationSource>())
+{
+    source.ReloadOnChange = false;
+}
 app.UseCors("AllowAngularApp");
 app.UseAuthentication();
 app.UseAuthorization();
