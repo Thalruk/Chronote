@@ -36,7 +36,7 @@ public class NotesController : ControllerBase
             .OrderByDescending(n => n.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(n => new NoteResponseDto(n.Id, n.Title, n.Content, n.CreatedAt, n.TargetDate))
+            .Select(n => new NoteResponseDto(n.Id, n.Title, n.Content, n.CreatedAt, n.TargetDate, n.TargetTime))
             .ToListAsync();
 
         return Ok(notes);
@@ -50,7 +50,7 @@ public class NotesController : ControllerBase
 
         if (note == null || note.UserId != userId) return NotFound();
 
-        return Ok(new NoteResponseDto(note.Id, note.Title, note.Content, note.CreatedAt, note.TargetDate));
+        return Ok(new NoteResponseDto(note.Id, note.Title, note.Content, note.CreatedAt, note.TargetDate, note.TargetTime));
     }
 
     [HttpPost]
@@ -63,13 +63,14 @@ public class NotesController : ControllerBase
             Content = dto.Content,
             CreatedAt = DateTime.UtcNow,
             UserId = GetUserId(),
-            TargetDate = dto.TargetDate
+            TargetDate = dto.TargetDate,
+            TargetTime = dto.TargetTime
         };
 
         _context.Notes.Add(note);
         await _context.SaveChangesAsync();
 
-        var response = new NoteResponseDto(note.Id, note.Title, note.Content, note.CreatedAt, note.TargetDate);
+        var response = new NoteResponseDto(note.Id, note.Title, note.Content, note.CreatedAt, note.TargetDate, note.TargetTime);
         return CreatedAtAction(nameof(GetNote), new { id = note.Id }, response);
     }
 
@@ -86,6 +87,7 @@ public class NotesController : ControllerBase
         existingNote.Title = dto.Title;
         existingNote.Content = dto.Content;
         existingNote.TargetDate = dto.TargetDate;
+        existingNote.TargetTime = dto.TargetTime;
 
         await _context.SaveChangesAsync();
 

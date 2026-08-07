@@ -42,9 +42,22 @@ export class NoteSortingService {
         });
 
         const sortAsc = (a: Note, b: Note) => {
-            const timeA = a.targetDate ? new Date(a.targetDate).getTime() : new Date(a.createdAt || 0).getTime();
-            const timeB = b.targetDate ? new Date(b.targetDate).getTime() : new Date(b.createdAt || 0).getTime();
-            return timeA - timeB;
+            const getSortTime = (note: Note) => {
+                if (!note.targetDate) return new Date(note.createdAt || 0).getTime();
+
+                const date = new Date(note.targetDate);
+
+                if (note.targetTime) {
+                    const parts = note.targetTime.split(':').map(Number);
+                    date.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
+                } else {
+                    date.setHours(23, 59, 59, 999);
+                }
+
+                return date.getTime();
+            };
+
+            return getSortTime(a) - getSortTime(b);
         };
 
         Object.values(result).forEach(arr => arr.sort(sortAsc));
