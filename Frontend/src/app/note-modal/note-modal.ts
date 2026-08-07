@@ -18,6 +18,7 @@ export class NoteModal {
   title = '';
   content = '';
   targetDate = '';
+  targetTime = '';
 
   @ViewChild('titleInput') titleInput!: ElementRef<HTMLInputElement>;
   constructor() {
@@ -32,6 +33,7 @@ export class NoteModal {
         } else {
           this.targetDate = '';
         }
+        this.targetTime = data?.targetTime ? data.targetTime.substring(0, 5) : '';
         setTimeout(() => {
           this.titleInput?.nativeElement.focus();
         }, 50);
@@ -40,11 +42,16 @@ export class NoteModal {
   }
 
   onSave() {
+    let timeToSend = null;
+    if (this.targetTime) {
+      timeToSend = this.targetTime.length === 5 ? `${this.targetTime}:00` : this.targetTime;
+    }
     const result: Partial<Note> = {
       ...(this.noteData() || {}),
       title: this.title,
       content: this.content,
       targetDate: this.targetDate ? new Date(this.targetDate).toISOString() : null,
+      targetTime: this.targetTime || undefined,
     };
 
     this.save.emit(result);

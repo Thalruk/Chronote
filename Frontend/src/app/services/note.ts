@@ -9,6 +9,7 @@ export interface Note {
   content: string;
   userId?: string;
   targetDate?: Date | string | null;
+  targetTime?: string;
   createdAt?: Date | string;
 }
 @Injectable({

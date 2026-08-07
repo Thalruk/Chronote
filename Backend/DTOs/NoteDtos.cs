@@ -5,19 +5,22 @@
       string Title,
       string Content,
       DateTime CreatedAt,
-      DateTime? TargetDate
+      DateTime? TargetDate,
+      TimeOnly? TargetTime
   );
 
     public record CreateNoteDto(
         string Title,
         string Content,
-        DateTime? TargetDate
+        DateTime? TargetDate,
+         TimeOnly? TargetTime
     );
 
     public record UpdateNoteDto(
         Guid Id,
         string Title,
         string Content,
-        DateTime? TargetDate
+        DateTime? TargetDate,
+         TimeOnly? TargetTime
     );
 }
