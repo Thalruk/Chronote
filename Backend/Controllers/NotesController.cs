@@ -1,10 +1,10 @@
-﻿using Backend.Models;
+﻿using Backend.DTOs;
+using Backend.Models;
 using Chronote.Api.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using Backend.DTOs;
 
 namespace Chronote.Api.Controllers;
 
@@ -36,7 +36,7 @@ public class NotesController : ControllerBase
             .OrderByDescending(n => n.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(n => new NoteResponseDto(n.Id, n.Title, n.Content, n.CreatedAt, n.TargetDate, n.TargetTime))
+            .Select(n => new NoteResponseDto(n.Id, n.Title, n.Content, n.CreatedAt, n.TargetDate, n.TargetTime, n.IsArchived))
             .ToListAsync();
 
         return Ok(notes);
@@ -50,7 +50,7 @@ public class NotesController : ControllerBase
 
         if (note == null || note.UserId != userId) return NotFound();
 
-        return Ok(new NoteResponseDto(note.Id, note.Title, note.Content, note.CreatedAt, note.TargetDate, note.TargetTime));
+        return Ok(new NoteResponseDto(note.Id, note.Title, note.Content, note.CreatedAt, note.TargetDate, note.TargetTime, note.IsArchived));
     }
 
     [HttpPost]
@@ -64,13 +64,14 @@ public class NotesController : ControllerBase
             CreatedAt = DateTime.UtcNow,
             UserId = GetUserId(),
             TargetDate = dto.TargetDate,
-            TargetTime = dto.TargetTime
+            TargetTime = dto.TargetTime,
+            IsArchived = dto.IsArchived ?? false
         };
 
         _context.Notes.Add(note);
         await _context.SaveChangesAsync();
 
-        var response = new NoteResponseDto(note.Id, note.Title, note.Content, note.CreatedAt, note.TargetDate, note.TargetTime);
+        var response = new NoteResponseDto(note.Id, note.Title, note.Content, note.CreatedAt, note.TargetDate, note.TargetTime, note.IsArchived);
         return CreatedAtAction(nameof(GetNote), new { id = note.Id }, response);
     }
 
@@ -88,7 +89,7 @@ public class NotesController : ControllerBase
         existingNote.Content = dto.Content;
         existingNote.TargetDate = dto.TargetDate;
         existingNote.TargetTime = dto.TargetTime;
-
+        existingNote.IsArchived = dto.IsArchived ?? existingNote.IsArchived;
         await _context.SaveChangesAsync();
 
         return NoContent();

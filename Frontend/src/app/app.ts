@@ -37,6 +37,9 @@ export class App implements OnInit {
 
   user = signal<SocialUser | null>(null);
 
+  isArchiveView = signal(false);
+  archivedNotes = signal<Note[]>([]);
+
   notesMissed = signal<Note[]>([]);
   notesToday = signal<Note[]>([]);
   notesTomorrow = signal<Note[]>([]);
@@ -120,7 +123,10 @@ export class App implements OnInit {
         clearTimeout(slowRequestTimer);
         this.isServerWakingUp.set(false);
 
-        const sorted = this.noteSortingService.distribute(data);
+        const activeNotes = data.filter(n => !n.isArchived);
+        this.archivedNotes.set(data.filter(n => n.isArchived));
+
+        const sorted = this.noteSortingService.distribute(activeNotes);
 
         this.notesMissed.set(sorted.missed);
         this.notesToday.set(sorted.today);
@@ -132,12 +138,9 @@ export class App implements OnInit {
       error: (err) => {
         clearTimeout(slowRequestTimer);
         console.error('Error fetching notes:', err);
-
         if (err.status === 0 || err.status === 502 || err.status === 503) {
           this.isServerWakingUp.set(true);
-          setTimeout(() => {
-            this.loadNotes();
-          }, 5000);
+          setTimeout(() => this.loadNotes(), 5000);
         } else {
           this.isServerWakingUp.set(false);
         }
@@ -234,5 +237,28 @@ export class App implements OnInit {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
+  }
+  archiveNote(note: Note) {
+    const updatedNote = { ...note, isArchived: true };
+    this.noteService.updateNote(updatedNote).subscribe({
+      next: () => this.loadNotes(),
+      error: (err) => console.error('Error archiving note:', err),
+    });
+  }
+
+  restoreNote(note: Note) {
+    const updatedNote = { ...note, isArchived: false };
+    this.noteService.updateNote(updatedNote).subscribe({
+      next: () => this.loadNotes(),
+      error: (err) => console.error('Error restoring note:', err),
+    });
+  }
+
+  hardDeleteNote(id: string | undefined) {
+    if (!id) return;
+    this.noteService.deleteNote(id).subscribe({
+      next: () => this.loadNotes(),
+      error: (err) => console.error('Error deleting note:', err),
+    });
   }
 }

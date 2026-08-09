@@ -6,14 +6,16 @@
       string Content,
       DateTime CreatedAt,
       DateTime? TargetDate,
-      TimeOnly? TargetTime
+      TimeOnly? TargetTime,
+      bool IsArchived
   );
 
     public record CreateNoteDto(
         string Title,
         string Content,
         DateTime? TargetDate,
-         TimeOnly? TargetTime
+        TimeOnly? TargetTime,
+        bool? IsArchived
     );
 
     public record UpdateNoteDto(
@@ -21,6 +23,7 @@
         string Title,
         string Content,
         DateTime? TargetDate,
-         TimeOnly? TargetTime
+        TimeOnly? TargetTime,
+        bool? IsArchived
     );
 }

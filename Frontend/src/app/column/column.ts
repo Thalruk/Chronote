@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Note } from '../services/note';
 import { TranslatePipe } from '@ngx-translate/core';
+
 @Component({
   selector: 'app-column',
   standalone: true,
@@ -15,7 +16,7 @@ export class Column {
   notes = input.required<Note[]>();
 
   @Output() dropped = new EventEmitter<CdkDragDrop<Note[]>>();
-  @Output() delete = new EventEmitter<string>();
+  @Output() archive = new EventEmitter<Note>();
   @Output() edit = new EventEmitter<Note>();
   @Output() create = new EventEmitter<string>();
 

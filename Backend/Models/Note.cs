@@ -9,5 +9,6 @@
         public string UserId { get; set; } = string.Empty;
         public DateTime? TargetDate { get; set; }
         public TimeOnly? TargetTime { get; set; }
+        public bool IsArchived { get; set; } = false;
     }
 }
