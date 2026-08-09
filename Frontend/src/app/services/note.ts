@@ -11,6 +11,7 @@ export interface Note {
   targetDate?: Date | string | null;
   targetTime?: string;
   createdAt?: Date | string;
+  isArchived?: boolean;
 }
 @Injectable({
   providedIn: 'root',
