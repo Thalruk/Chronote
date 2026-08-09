@@ -36,6 +36,7 @@ export class App implements OnInit {
   private noteSortingService = inject(NoteSortingService);
 
   user = signal<SocialUser | null>(null);
+  isGuestMode = signal(localStorage.getItem('guest_mode') === 'true');
 
   isArchiveView = signal(false);
   archivedNotes = signal<Note[]>([]);
@@ -55,6 +56,7 @@ export class App implements OnInit {
 
   isDarkMode = signal(false);
   isSettingsOpen = signal(false);
+
   ngOnInit() {
     const savedToken = localStorage.getItem('jwt_token');
 
@@ -73,6 +75,8 @@ export class App implements OnInit {
             this.logOut();
           },
         });
+    } else if (this.isGuestMode()) {
+      this.loadNotes();
     }
     this.authService.authState.pipe(
       takeUntilDestroyed(this.destroyRef)
@@ -167,13 +171,9 @@ export class App implements OnInit {
       this.noteService.updateNote(movedNote).subscribe({
         next: () => {
           console.log(`Note updated! New date: ${movedNote.targetDate}`);
-          // Optionally you can call this.loadNotes() here, but cards
-          // have already physically moved on the frontend, so it's not required.
         },
         error: (err) => {
           console.error('Error updating note:', err);
-          // In case of a server error, best practice is to revert the UI,
-          // but at this stage a hard reload from the database is enough:
           this.loadNotes();
         },
       });
@@ -260,5 +260,37 @@ export class App implements OnInit {
       next: () => this.loadNotes(),
       error: (err) => console.error('Error deleting note:', err),
     });
+  }
+
+  enterGuestMode() {
+    localStorage.setItem('guest_mode', 'true');
+    this.isGuestMode.set(true);
+
+    if (!localStorage.getItem('guest_notes')) {
+      const welcomeNote: Note = {
+        id: crypto.randomUUID(),
+        title: 'Welcome to Chronote!',
+        content: 'This is Guest Mode. Your notes are saved locally in this browser. Feel free to drag me around!',
+        isArchived: false,
+        targetDate: new Date().toISOString()
+      };
+      localStorage.setItem('guest_notes', JSON.stringify([welcomeNote]));
+    }
+
+    this.loadNotes();
+  }
+
+  exitGuestMode() {
+    localStorage.removeItem('guest_mode');
+    this.isGuestMode.set(false);
+
+    // Czyszczenie widoku
+    this.notesMissed.set([]);
+    this.notesToday.set([]);
+    this.notesTomorrow.set([]);
+    this.notesThisWeek.set([]);
+    this.notesNextWeek.set([]);
+    this.notesLater.set([]);
+    this.archivedNotes.set([]);
   }
 }

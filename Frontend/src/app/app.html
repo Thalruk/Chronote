@@ -76,8 +76,22 @@
             {{ 'COMMON.LOGOUT' | translate }}
           </button>
         </div>
+        } @else if (isGuestMode()) {
+        <div class="text-sm text-right flex flex-col justify-center">
+          <p class="font-medium text-gray-700 dark:text-gray-200 leading-tight">Guest User</p>
+          <button (click)="exitGuestMode()"
+            class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-right mt-0.5">
+            Exit Guest Mode
+          </button>
+        </div>
         } @else {
-        <asl-google-signin-button type="standard" size="medium"></asl-google-signin-button>
+        <div class="flex items-center gap-2">
+          <button (click)="enterGuestMode()"
+            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-200 dark:border-gray-700">
+            Try as Guest
+          </button>
+          <asl-google-signin-button type="standard" size="medium"></asl-google-signin-button>
+        </div>
         }
       </div>
     </header>
