@@ -7,3 +7,8 @@ Thumbs.db
 .vs/
 *.suo
 *.user
+
+# Python  AI Service
+AiService/venv/
+AiService/__pycache__/
+AiService/*.pyc
