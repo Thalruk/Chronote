@@ -1,12 +1,14 @@
 import os
 import tempfile
 from datetime import date
+from pathlib import Path
 from typing import List, Optional
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
 from faster_whisper import WhisperModel
 import ollama
+from pydantic import BaseModel, Field
 
 app = FastAPI(title="Chronote AI Service")
 
@@ -19,20 +21,20 @@ app.add_middleware(
 )
 
 print("Loading Whisper model...")
-whisper_model = WhisperModel("small", device="cuda", compute_type="float16")
-print("Whisper model loaded.")
+whisper_model = WhisperModel("small", device="cpu", compute_type="int8")
+print(f"Whisper model loaded (Device: {whisper_model.model.device}, Compute type: {whisper_model.model.compute_type}).")
 
 
 class ExtractedTask(BaseModel):
-    title: str = Field(description="Krótki, zwięzły tytuł zadania")
-    content: str = Field(description="Szczegółowy opis lub kontekst zadania")
+    title: str = Field(description="Short, concise task title")
+    content: str = Field(description="Detailed description or context of the task")
     targetDate: Optional[str] = Field(
-        default=None, 
-        description="Docelowa data w formacie YYYY-MM-DD wywnioskowana z wypowiedzi, lub null"
+        default=None,
+        description="Target date in YYYY-MM-DD format inferred from the speech, or null if not specified"
     )
     targetTime: Optional[str] = Field(
-        default=None, 
-        description="Godzina w formacie HH:MM (24h) jeśli została podana, inaczej null"
+        default=None,
+        description="Target time in HH:MM (24-hour) format if specified, otherwise null"
     )
 
 
@@ -51,9 +53,11 @@ async def process_voice_note(
     current_date: str = Form(default_factory=lambda: date.today().isoformat())
 ):
     if not audio.filename:
-        raise HTTPException(status_code=400, detail="Nie podano pliku audio")
+        raise HTTPException(status_code=400, detail="No audio file provided")
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as tmp_file:
+    suffix = Path(audio.filename).suffix or ".audio"
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp_file:
         content = await audio.read()
         tmp_file.write(content)
         tmp_path = tmp_file.name
@@ -66,9 +70,9 @@ async def process_voice_note(
             return ExtractionResponse(transcription="", tasks=[])
 
         system_prompt = (
-            f"Jesteś asystentem produktywności. Dzisiejsza data to {current_date}. "
-            "Przeanalizuj chaotyczny słowotok użytkownika i podziel go na konkretne zadania. "
-            "Zachowaj język, w którym mówił użytkownik."
+            f"You are a productivity assistant. Today's date is {current_date}. "
+            "Analyze the user's chaotic brain dump and break it down into concrete, actionable tasks. "
+            "Strictly preserve the original language spoken by the user."
         )
 
         response = ollama.chat(
