@@ -40,7 +40,12 @@ export class NoteService {
 
   createNote(note: Partial<Note>): Observable<Note> {
     if (this.isGuest) {
-      const newNote = { ...note, id: crypto.randomUUID(), createdAt: new Date().toISOString(), isArchived: note.isArchived || false } as Note;
+      const newNote = {
+        ...note,
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString(),
+        isArchived: note.isArchived || false,
+      } as Note;
       this.saveGuestNotes([...this.guestNotes, newNote]);
       return of(newNote);
     }
@@ -49,7 +54,7 @@ export class NoteService {
 
   updateNote(note: Note): Observable<any> {
     if (this.isGuest) {
-      const updatedNotes = this.guestNotes.map(n => n.id === note.id ? note : n);
+      const updatedNotes = this.guestNotes.map((n) => (n.id === note.id ? note : n));
       this.saveGuestNotes(updatedNotes);
       return of(note);
     }
@@ -58,7 +63,7 @@ export class NoteService {
 
   deleteNote(id: string): Observable<any> {
     if (this.isGuest) {
-      this.saveGuestNotes(this.guestNotes.filter(n => n.id !== id));
+      this.saveGuestNotes(this.guestNotes.filter((n) => n.id !== id));
       return of({ success: true });
     }
     return this.http.delete(`${this.apiUrl}/${id}`);

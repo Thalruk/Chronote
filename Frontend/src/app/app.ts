@@ -21,11 +21,22 @@ import {
 import { Note, NoteService } from './services/note';
 import { ColumnType } from './models/column-type';
 import { NoteSortingService } from './services/note-sorting';
-
+import { BrainDumpModalComponent } from './brain-dump-modal/brain-dump-modal';
+import { ExtractedTask } from './services/ai-service';
+import { forkJoin } from 'rxjs';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, DragDropModule, Column, GoogleSigninButtonModule, NoteModal, SettingsModal, TranslatePipe],
+  imports: [
+    CommonModule,
+    DragDropModule,
+    Column,
+    GoogleSigninButtonModule,
+    NoteModal,
+    SettingsModal,
+    TranslatePipe,
+    BrainDumpModalComponent,
+  ],
   templateUrl: './app.html',
 })
 export class App implements OnInit {
@@ -56,7 +67,58 @@ export class App implements OnInit {
 
   isDarkMode = signal(false);
   isSettingsOpen = signal(false);
+  public isBrainDumpOpen = signal(false);
 
+  public handleExtractedTasks(tasks: ExtractedTask[]): void {
+    this.isBrainDumpOpen.set(false);
+
+    if (!tasks || tasks.length === 0) {
+      return;
+    }
+
+    const notesToCreate: Partial<Note>[] = tasks.map((task) => ({
+      title: task.title,
+      content: task.content,
+      targetDate: this.buildIsoDateFromString(task.targetDate, task.targetTime),
+      targetTime: task.targetTime ?? undefined,
+      isArchived: false,
+    }));
+
+    forkJoin(notesToCreate.map((note) => this.noteService.createNote(note))).subscribe({
+      next: () => {
+        this.loadNotes();
+      },
+      error: (err) => {
+        console.error('Error creating extracted tasks:', err);
+        this.loadNotes();
+      },
+    });
+  }
+
+  private buildIsoDateFromString(dateStr?: string | null, timeStr?: string | null): string | null {
+    if (!dateStr) {
+      return null;
+    }
+
+    const [year, month, day] = dateStr.split('-').map(Number);
+    if (!year || !month || !day) {
+      return null;
+    }
+
+    let hours = 12;
+    let minutes = 0;
+
+    if (timeStr) {
+      const [h, m] = timeStr.split(':').map(Number);
+      if (!Number.isNaN(h)) {
+        hours = h;
+        minutes = Number.isNaN(m) ? 0 : m;
+      }
+    }
+
+    const localDate = new Date(year, month - 1, day, hours, minutes, 0, 0);
+    return localDate.toISOString();
+  }
   ngOnInit() {
     const savedToken = localStorage.getItem('jwt_token');
 
@@ -78,9 +140,7 @@ export class App implements OnInit {
     } else if (this.isGuestMode()) {
       this.loadNotes();
     }
-    this.authService.authState.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
+    this.authService.authState.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (user) => {
         if (user) {
           this.user.set(user);
@@ -99,7 +159,10 @@ export class App implements OnInit {
       },
     });
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (
+      savedTheme === 'dark' ||
+      (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    ) {
       this.isDarkMode.set(true);
       document.documentElement.classList.add('dark');
     }
@@ -118,7 +181,6 @@ export class App implements OnInit {
     this.notesLater.set([]);
   }
 
-
   loadNotes() {
     const slowRequestTimer = setTimeout(() => this.isServerWakingUp.set(true), 1500);
 
@@ -127,8 +189,8 @@ export class App implements OnInit {
         clearTimeout(slowRequestTimer);
         this.isServerWakingUp.set(false);
 
-        const activeNotes = data.filter(n => !n.isArchived);
-        this.archivedNotes.set(data.filter(n => n.isArchived));
+        const activeNotes = data.filter((n) => !n.isArchived);
+        this.archivedNotes.set(data.filter((n) => n.isArchived));
 
         const sorted = this.noteSortingService.distribute(activeNotes);
 
@@ -151,7 +213,6 @@ export class App implements OnInit {
       },
     });
   }
-
 
   drop(event: CdkDragDrop<Note[]>, targetColumnName: ColumnType) {
     if (event.previousContainer === event.container) {
@@ -229,7 +290,7 @@ export class App implements OnInit {
     });
   }
   toggleDarkMode() {
-    this.isDarkMode.update(dark => !dark);
+    this.isDarkMode.update((dark) => !dark);
     if (this.isDarkMode()) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
@@ -270,9 +331,10 @@ export class App implements OnInit {
       const welcomeNote: Note = {
         id: crypto.randomUUID(),
         title: 'Welcome to Chronote!',
-        content: 'This is Guest Mode. Your notes are saved locally in this browser. Feel free to drag me around!',
+        content:
+          'This is Guest Mode. Your notes are saved locally in this browser. Feel free to drag me around!',
         isArchived: false,
-        targetDate: new Date().toISOString()
+        targetDate: new Date().toISOString(),
       };
       localStorage.setItem('guest_notes', JSON.stringify([welcomeNote]));
     }
@@ -284,7 +346,6 @@ export class App implements OnInit {
     localStorage.removeItem('guest_mode');
     this.isGuestMode.set(false);
 
-    // Czyszczenie widoku
     this.notesMissed.set([]);
     this.notesToday.set([]);
     this.notesTomorrow.set([]);
